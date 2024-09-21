@@ -44,12 +44,6 @@ pub unsafe fn init() {
     asm!("csrw stvec, {}", in(reg) trap_entry as usize);
 }
 
-#[no_mangle]
-#[linkage = "weak"]
-extern "C" fn trap_handler(tf: &mut TrapFrame) {
-    unimplemented!("TRAP: tf={:#x?}", tf);
-}
-
 /// Trap frame of kernel interrupt
 ///
 /// # Trap handler
