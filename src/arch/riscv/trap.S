@@ -13,7 +13,16 @@ trap_entry:
     csrrw sp, sscratch, sp
     bnez sp, trap_from_user
 trap_from_kernel:
-    csrr sp, sscratch
+    # We came from kernel, check that stack is not overflowed.
+    csrrw    sp, sscratch, t0
+    la       t0, _stack_1
+    bgtu     sp, t0, trap_from_kernel_okay
+    csrrw    t0, sscratch, sp
+    la       sp, _stack_0
+    j        trap_from_kernel_nope
+trap_from_kernel_okay:
+    csrrw    t0, sscratch, sp
+trap_from_kernel_nope:
     addi sp, sp, -34 * XLENB
     # sscratch = previous-sp, sp = kernel-sp
 trap_from_user:
