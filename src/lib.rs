@@ -2,6 +2,7 @@
 #![deny(warnings)]
 #![cfg_attr(target_arch = "mips", feature(asm_experimental_arch))]
 
+#[cfg(target_arch = "x86_64")]
 extern crate alloc;
 
 #[cfg(target_arch = "x86_64")]
