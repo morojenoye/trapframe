@@ -54,7 +54,7 @@ pub unsafe fn init() {
 /// use trapframe::TrapFrame;
 ///
 /// #[no_mangle]
-/// pub extern "C" fn trap_handler(tf: &mut TrapFrame) {
+/// pub extern "C" fn interrupt(tf: &mut TrapFrame) {
 ///     println!("TRAP! tf: {:#x?}", tf);
 /// }
 /// ```

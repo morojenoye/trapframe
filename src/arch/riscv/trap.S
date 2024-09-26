@@ -70,7 +70,7 @@ trap_from_user:
 end_trap_from_kernel:
     mv       a0, sp                        # first arg is TrapFrame
     la       ra, trap_return               # set return address
-    j        trap_handler
+    j        interrupt
 
 end_trap_from_user:
     # load callee-saved registers
