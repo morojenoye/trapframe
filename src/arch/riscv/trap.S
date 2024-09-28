@@ -10,21 +10,21 @@ trap_entry:
     # the kernel stack pointer. If we came from the kernel, sscratch
     # will contain 0, and we should continue on the current stack.
     csrrw    sp, sscratch, sp
-    bnez     sp, trap_from_user
-trap_from_kernel:
+    bnez     sp, 20f
+10: # trap_from_kernel
     # We came from kernel, check that stack is not overflowed.
     csrrw    sp, sscratch, t0
     la       t0, _stack_1
-    bgtu     sp, t0, trap_from_kernel_okay
+    bgtu     sp, t0, 11f
     csrrw    t0, sscratch, sp
     la       sp, _stack_0
-    j        trap_from_kernel_nope
-trap_from_kernel_okay:
+    j        12f
+11: # trap_from_kernel_okay
     csrrw    t0, sscratch, sp
-trap_from_kernel_nope:
+12: # trap_from_kernel_nope
     addi     sp, sp, -34 * XLENB
     # sscratch = previous-sp, sp = kernel-sp
-trap_from_user:
+20: # trap_from_user
     # save general registers except sp(x2)
     STORE_SP x1, 1
     STORE_SP x3, 3
@@ -66,13 +66,13 @@ trap_from_user:
     STORE_SP t2, 33                        # save sepc
 
     andi     t1, t1, 1 << 8                # sstatus.SPP = 1
-    beqz     t1, end_trap_from_user
-end_trap_from_kernel:
+    beqz     t1, 40f
+30: # end_trap_from_kernel
     mv       a0, sp                        # first arg is TrapFrame
-    la       ra, trap_return               # set return address
+    la       ra, 50f                       # set return address
     j        interrupt
 
-end_trap_from_user:
+40: # end_trap_from_user
     # load callee-saved registers
     LOAD_SP  sp, 0
     LOAD_SP  s0, 0
@@ -119,7 +119,7 @@ run_user:
     STORE_SP t0, 0                         # save kernel-sp
     csrw     sscratch, sp                  # sscratch = bottom of trap frame
 
-trap_return:
+50: # trap_return
     LOAD_SP  t0, 32                        # t0 = sstatus
     LOAD_SP  t1, 33                        # t1 = sepc
     csrw     sstatus, t0                   # load sstatus
